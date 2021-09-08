@@ -16,7 +16,7 @@ MOSEI_COVAREP_FACET_GLOVE = {
     "audio": "CMU_MOSEI_COVAREP",
     "text": "CMU_MOSEI_TimestampedWordVectors",
     "raw": "CMU_MOSEI_TimestampedWords",
-    "visual": "CMU_MOSEI_Visual_Facet_42",
+    "visual": "CMU_MOSEI_VisualFacet42",
     "labels": "CMU_MOSEI_Opinion_Labels",
 }
 
