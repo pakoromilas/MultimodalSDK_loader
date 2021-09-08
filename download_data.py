@@ -1,5 +1,8 @@
 import os
-import re
+import sys
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "CMU-MultimodalSDK"))
 
 import mmsdk
 import numpy as np
@@ -468,7 +471,6 @@ def data_pickle(fname):
 
 
 if __name__ == "__main__":
-    import sys
 
     base_path = sys.argv[1]
     train, dev, test, w2i = mosei(
