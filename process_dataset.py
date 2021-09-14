@@ -13,11 +13,29 @@ def deploy(in_dataset,destination):
     in_dataset.deploy(destination,deploy_files)
 
 
-def download_data(dataset):
-    source = {"raw": dataset.raw, "highlevel": dataset.highlevel, "labels": dataset.labels}
-    cmumosei_dataset={}
+def download_data(dataset, dataset_name):
+    source = {}
+    cmumosei_dataset = {}
+
+    if not os.path.isdir(dataset_name + "_raw"):
+        source["raw"] = dataset.raw
+    else:
+        dataset["raw"] = mmdatasdk.mmdataset(dataset_name + "_raw")
+
+    if not os.path.isdir(dataset_name + "_highlevel"):
+        source["highlevel"] = dataset.highlevel
+    else:
+        dataset["highlevel"] = mmdatasdk.mmdataset(dataset_name + "_highlevel")
+
+    if not os.path.isdir(dataset_name + "_labels"):
+        source["labels"] = dataset.labels
+    else:
+        dataset["labels"] = mmdatasdk.mmdataset(dataset_name + "_labels")
+
+    #source = {"raw": dataset.raw, "highlevel": dataset.highlevel, "labels": dataset.labels}
+
     for key in source:
-        cmumosei_dataset[key]=mmdatasdk.mmdataset(source[key],'cmumosei_%s/'%key)
+        cmumosei_dataset[key]=mmdatasdk.mmdataset(source[key], 'cmumosei_%s/'%key)
     return cmumosei_dataset
 
 
@@ -68,6 +86,6 @@ if __name__=="__main__":
 
     print("You only need to download the data once!")
     dataset_name = "cmumosei"
-    dataset = download_data(mmdatasdk.cmu_mosei)
+    dataset = download_data(mmdatasdk.cmu_mosei, dataset_name)
     process_data(dataset_name)
     log.success("Dataset processed")
