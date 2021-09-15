@@ -30,6 +30,12 @@ feature_selection = {
     }
 }
 
+dataset_configs = {
+    "cmumosei": mmdatasdk.cmu_mosei,
+    "cmumosi": mmdatasdk.cmu_mosi,
+    "pom": mmdatasdk.pom
+}
+
 
 def deploy(in_dataset,destination):
     deploy_files={x:x for x in in_dataset.keys()}
@@ -133,6 +139,6 @@ if __name__=="__main__":
     if dataset_name not in supported_datasets:
         raise ValueError("Unsupported dataset. Only supported datasets are cmumosei, cmumosi and pom")
 
-    dataset = download_data(mmdatasdk.cmu_mosei, dataset_name)
+    dataset = download_data(dataset_configs[dataset_name], dataset_name)
     process_data(dataset_name)
     log.success("Dataset processed")
