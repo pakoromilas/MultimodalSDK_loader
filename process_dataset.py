@@ -8,6 +8,28 @@ from mmsdk import mmdatasdk
 from mmsdk.mmdatasdk import log
 
 
+feature_selection = {
+    "cmumosei": {
+        "audio": "COVAREP",
+        "text": "glove_vectors",
+        "visual": "FACET 4.2",
+        "labels": "All Labels",
+    },
+    "cmumosi": {
+        "audio": "COVAREP",
+        "text": "glove_vectors",
+        "visual": "FACET_4.2",
+        "labels": "Opinion Segment Labels",
+    },
+    "pom": {
+        "audio": "COVAREP",
+        "text": "glove_vectors",
+        "visual": "FACET 4.2",
+        "labels": "labels"
+    }
+}
+
+
 def deploy(in_dataset,destination):
     deploy_files={x:x for x in in_dataset.keys()}
     in_dataset.deploy(destination,deploy_files)
@@ -18,18 +40,27 @@ def download_data(dataset, dataset_name):
     cmumosei_dataset = {}
 
     if not os.path.isdir(dataset_name + "_raw"):
-        source["raw"] = dataset.raw
+        print("Downloading raw...")
+        source["raw"] = dataset.raw["words"]
     else:
+        print("Raw already exist, no need to download")
         dataset["raw"] = mmdatasdk.mmdataset(dataset_name + "_raw")
 
     if not os.path.isdir(dataset_name + "_highlevel"):
-        source["highlevel"] = dataset.highlevel
+        print("Downloading highlevel...")
+        tmp_dict = feature_selection[dataset_name]
+        del tmp_dict["labels"]
+        highlevel = {dataset.highlevel[tmp_dict[key]] for key in tmp_dict}
+        source["highlevel"] = highlevel
     else:
+        print("Highlevel features already exist, no need to download")
         dataset["highlevel"] = mmdatasdk.mmdataset(dataset_name + "_highlevel")
 
     if not os.path.isdir(dataset_name + "_labels"):
+        print("Downloading labels...")
         source["labels"] = dataset.labels
     else:
+        print("Labels already exist, no need to download")
         dataset["labels"] = mmdatasdk.mmdataset(dataset_name + "_labels")
 
     #source = {"raw": dataset.raw, "highlevel": dataset.highlevel, "labels": dataset.labels}
