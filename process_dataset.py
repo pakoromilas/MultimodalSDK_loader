@@ -70,8 +70,9 @@ def download_data(dataset_config, dataset_name):
     return dataset
 
 
-def process_data(dataset_name, seq_len=50, non_sequences=["All Labels"]):
+def process_data(dataset_name, seq_len=50):
 
+    non_sequences = [feature_selection[dataset_name]["labels"]]
     folders = [dataset_name + "_highlevel", dataset_name + "_labels"]
 
     dataset={}
