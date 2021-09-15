@@ -35,39 +35,39 @@ def deploy(in_dataset,destination):
     in_dataset.deploy(destination,deploy_files)
 
 
-def download_data(dataset, dataset_name):
+def download_data(dataset_config, dataset_name):
     source = {}
-    cmumosei_dataset = {}
+    dataset = {}
 
     if not os.path.isdir(dataset_name + "_raw"):
-        print("Downloading raw...")
-        source["raw"] = dataset.raw["words"]
+        source["raw"] = {'words': dataset_config.raw["words"]}
     else:
         print("Raw already exist, no need to download")
         dataset["raw"] = mmdatasdk.mmdataset(dataset_name + "_raw")
 
     if not os.path.isdir(dataset_name + "_highlevel"):
-        print("Downloading highlevel...")
         tmp_dict = feature_selection[dataset_name]
         del tmp_dict["labels"]
-        highlevel = {dataset.highlevel[tmp_dict[key]] for key in tmp_dict}
+        highlevel = {tmp_dict[key]: dataset_config.highlevel[tmp_dict[key]] for key in tmp_dict}
         source["highlevel"] = highlevel
     else:
         print("Highlevel features already exist, no need to download")
         dataset["highlevel"] = mmdatasdk.mmdataset(dataset_name + "_highlevel")
 
     if not os.path.isdir(dataset_name + "_labels"):
-        print("Downloading labels...")
-        source["labels"] = dataset.labels
+        source["labels"] = dataset_config.labels
     else:
         print("Labels already exist, no need to download")
         dataset["labels"] = mmdatasdk.mmdataset(dataset_name + "_labels")
 
-    #source = {"raw": dataset.raw, "highlevel": dataset.highlevel, "labels": dataset.labels}
+    # source = {"raw": dataset.raw, "highlevel": dataset.highlevel, "labels": dataset.labels}
+    
+    is_empty = not source
+    if not is_empty:
+        for key in source:
+            dataset[key] = mmdatasdk.mmdataset(source[key], dataset_name + "_" + key)
 
-    for key in source:
-        cmumosei_dataset[key]=mmdatasdk.mmdataset(source[key], 'cmumosei_%s/'%key)
-    return cmumosei_dataset
+    return dataset
 
 
 def process_data(dataset_name, seq_len=50, non_sequences=["All Labels"]):
@@ -76,10 +76,10 @@ def process_data(dataset_name, seq_len=50, non_sequences=["All Labels"]):
 
     dataset={}
     for folder in folders:
-        dataset[folder.split("_")[1]]=mmdatasdk.mmdataset(folder)
-
+        dataset[folder.split("_")[1]] = mmdatasdk.mmdataset(folder)
+    
     word_aligned_path = dataset_name + '_word_aligned_highlevel'
-    if os.path.isdir(word_aligned_path) and os.listdir(word_aligned_path) == []:
+    if os.path.isdir(word_aligned_path) and os.listdir(word_aligned_path) != []:
         dataset["highlevel"] = mmdatasdk.mmdataset(word_aligned_path)
     else:
         dataset["highlevel"].align("glove_vectors")
@@ -87,7 +87,7 @@ def process_data(dataset_name, seq_len=50, non_sequences=["All Labels"]):
         deploy(dataset["highlevel"], word_aligned_path)
 
     final_aligned_path = dataset_name + '_final_aligned_highlevel'
-    if os.path.isdir(word_aligned_path) and os.listdir(word_aligned_path) == []:
+    if os.path.isdir(word_aligned_path) and os.listdir(word_aligned_path) != []:
         dataset["highlevel"] = mmdatasdk.mmdataset("final_aligned")
     else:
         dataset["highlevel"].computational_sequences["All Labels"] = dataset["labels"]["All Labels"]
