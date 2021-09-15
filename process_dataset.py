@@ -69,17 +69,13 @@ def download_data(dataset_config, dataset_name):
         print("Labels already exist, no need to download")
         dataset["labels"] = mmdatasdk.mmdataset(folder_path + "_labels")
 
-    # source = {"raw": dataset.raw, "highlevel": dataset.highlevel, "labels": dataset.labels}
-    
     is_empty = not source
     if not is_empty:
         for key in source:
             dataset[key] = mmdatasdk.mmdataset(source[key], folder_path + "_" + key)
 
-    return dataset
 
-
-def process_data(dataset_name, seq_len=50):
+def process_sequences(dataset_name, seq_len=50):
 
     dataset_path = os.path.join("data", dataset_name)
     folder_path = os.path.join(dataset_path, dataset_name)
@@ -124,13 +120,21 @@ def process_data(dataset_name, seq_len=50):
 
     for i in range(3):
         for csd in list(dataset["highlevel"].keys()):
-            print ("Shape of the %s computational sequence for %s fold is %s"%(
+            print("Shape of the %s computational sequence for %s fold is %s"%(
                 csd, fold_names[i], tensors[i][csd].shape))
 
     return tensors
 
 
-if __name__=="__main__":
+def get_and_process_data(dataset_name):
+
+    download_data(dataset_configs[dataset_name], dataset_name)
+    tensors = process_sequences(dataset_name)
+    log.success("Dataset processed")
+    return tensors
+
+
+if __name__ == "__main__":
 
     print("You only need to download the data once!")
     supported_datasets = ["cmumosei", "cmumosi", "pom"]
@@ -143,6 +147,4 @@ if __name__=="__main__":
     if dataset_name not in supported_datasets:
         raise ValueError("Unsupported dataset. Only supported datasets are cmumosei, cmumosi and pom")
 
-    dataset = download_data(dataset_configs[dataset_name], dataset_name)
-    process_data(dataset_name)
-    log.success("Dataset processed")
+    _ = get_and_process_data(dataset_name)
