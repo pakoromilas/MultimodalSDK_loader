@@ -37,7 +37,7 @@ where the supported dataset names are cmumosi, cmumosei and pom and the sequence
 
 #### Python
 ```
-from MultimodalSDK_loader import get_and_process_data
+from MultimodalSDK_loader.process_dataset import get_and_process_data
 
 dataset_name = your_dataset_name # eg. "cmumosi"
 seq_len = your_sequence_length # eg. 20
