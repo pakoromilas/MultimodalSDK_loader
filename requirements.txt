@@ -1,0 +1,11 @@
+pickle-mixin
+h5py
+validators
+tqdm
+numpy
+argparse
+requests
+colorama
+urllib3
+decorator
+idna
