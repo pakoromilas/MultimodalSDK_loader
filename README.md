@@ -13,10 +13,12 @@ Once a step is runned, it caches the output files for future loading.
 
 - Clone repo with CMU Multimodal SDK submodule
 ```
-git clone --recursive https://github.com/lobracost/MultimodalSDK_loader.git
-
 # git version > 2.1.2
-git clone --recurse-submodules https://github.com/lobracost/MultimodalSDK_loader.git
+git clone --recurse-submodules https://github.com/efthymisgeo/multimodal-masking.git
+
+# git version < 2.1.2
+git clone --recursive https://github.com/efthymisgeo/multimodal-masking.git
+
 ```
 - Install requirements
 ```
