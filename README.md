@@ -1,13 +1,13 @@
 # MultimodalSDK_loader
 
-This repo aims to serve as a dataparser for the [CMU-MultimodalSDK](https://github.com/A2Zadeh/CMU-MultimodalSDK) package. It is a plug-and-play solution for feature extraction of CMU-MOSEI, CMU-MOSI and POM datasets. It's main functionality results in pickled tensors of user-defined sequence length, that contain feature vectors for train, validation and test sets of each dataset.<br/>
+This repo aims to serve as a data-parser for the [CMU-MultimodalSDK](https://github.com/A2Zadeh/CMU-MultimodalSDK) package. It is a plug-and-play solution for feature extraction of CMU-MOSEI, CMU-MOSI and POM datasets. It's main functionality results in pickled tensors of user-defined sequence length, that contain feature vectors for train, validation and test sets of each dataset.<br/>
 
 The code works in three steps:
 1. download data
 2. word-level alignment across modalities
 3. label-level alignment across modalities
 
-Once a step is runned, it caches the output files for future loading.
+Once a step is completed, it caches the output files for future loading.
 
 ## Setup
 
