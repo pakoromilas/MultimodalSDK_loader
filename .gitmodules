@@ -1,0 +1,3 @@
+[submodule "CMU-MultimodalSDK"]
+	path = CMU-MultimodalSDK
+	url = git@github.com:A2Zadeh/CMU-MultimodalSDK.git
