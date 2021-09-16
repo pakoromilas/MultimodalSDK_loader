@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import pickle
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "CMU-MultimodalSDK"))
@@ -45,7 +46,8 @@ def deploy(in_dataset,destination):
 def download_data(dataset_config, dataset_name):
     source = {}
     dataset = {}
-    dataset_path = os.path.join("data", dataset_name)
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data")
+    dataset_path = os.path.join(data_path, dataset_name)
     folder_path = os.path.join(dataset_path, dataset_name)
 
     if not os.path.isdir(folder_path + "_raw"):
@@ -75,9 +77,11 @@ def download_data(dataset_config, dataset_name):
             dataset[key] = mmdatasdk.mmdataset(source[key], folder_path + "_" + key)
 
 
-def process_sequences(dataset_name, seq_len=50):
+def process_sequences(dataset_name, seq_len):
 
-    dataset_path = os.path.join("data", dataset_name)
+    cache_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "cache")
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data")
+    dataset_path = os.path.join(data_path, dataset_name)
     folder_path = os.path.join(dataset_path, dataset_name)
 
     dataset = {}
@@ -116,8 +120,13 @@ def process_sequences(dataset_name, seq_len=50):
                dataset_configs[dataset_name].standard_folds.standard_valid_fold,
                dataset_configs[dataset_name].standard_folds.standard_test_fold])
 
-    fold_names = ["train", "valid", "test"]
+    cache_file = os.path.join(cache_path, dataset_name + "_" + str(seq_len) + ".pkl")
+    with open(cache_file, "wb") as output_file:
+        pickle.dump(tensors, output_file)
 
+    print("Tensors saved to {}".format(cache_file))
+
+    fold_names = ["train", "valid", "test"]
     for i in range(3):
         for csd in list(dataset["highlevel"].keys()):
             print("Shape of the %s computational sequence for %s fold is %s"%(
@@ -126,25 +135,33 @@ def process_sequences(dataset_name, seq_len=50):
     return tensors
 
 
-def get_and_process_data(dataset_name):
-
-    download_data(dataset_configs[dataset_name], dataset_name)
-    tensors = process_sequences(dataset_name)
-    log.success("Dataset processed")
+def get_and_process_data(dataset_name, seq_len):
+    cache_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "cache")
+    cache_file = os.path.join(cache_path, dataset_name + "_" + str(seq_len) + ".pkl")
+    if os.path.isfile(cache_file):
+        print("Tensors {} already exist. Loading from cache directory".format(cache_file))
+        with open(cache_file, "rb") as input_file:
+            tensors = pickle.load(input_file)
+    else:
+        download_data(dataset_configs[dataset_name], dataset_name)
+        tensors = process_sequences(dataset_name, seq_len)
+        log.success("Dataset processed")
     return tensors
 
 
 if __name__ == "__main__":
 
-    print("You only need to download the data once!")
     supported_datasets = ["cmumosei", "cmumosi", "pom"]
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--dataset_name', required=True,
-                        type=str, nargs='+', help='Dataset name from possible (cmumosei, cmumosi and pom)')
+                        type=str, help='Dataset name from possible (cmumosei, cmumosi and pom)')
+    parser.add_argument('-s', '--sequence_length', required=True,
+                        type=int, help='Sequence length of output tensors')
     args = parser.parse_args()
 
-    dataset_name = args.dataset_name[0]
+    dataset_name = args.dataset_name
     if dataset_name not in supported_datasets:
         raise ValueError("Unsupported dataset. Only supported datasets are cmumosei, cmumosi and pom")
 
-    _ = get_and_process_data(dataset_name)
+    seq_len = args.sequence_length
+    _ = get_and_process_data(dataset_name, seq_len)
