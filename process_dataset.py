@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import pickle
+import numpy as np
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "CMU-MultimodalSDK"))
@@ -38,9 +39,13 @@ dataset_configs = {
 }
 
 
-def deploy(in_dataset,destination):
-    deploy_files={x:x for x in in_dataset.keys()}
-    in_dataset.deploy(destination,deploy_files)
+def stack_features(*features_stats):
+    return np.dstack([*features_stats])
+
+
+def deploy(in_dataset, destination):
+    deploy_files = {x: x for x in in_dataset.keys()}
+    in_dataset.deploy(destination, deploy_files)
 
 
 def download_data(dataset_config, dataset_name):
@@ -147,6 +152,33 @@ def get_and_process_data(dataset_name, seq_len):
         tensors = process_sequences(dataset_name, seq_len)
         log.success("Dataset processed")
     return tensors
+
+
+def get_feature_matrix(dataset_name, seq_len):
+    tensors = get_and_process_data(dataset_name, seq_len)
+
+    train = tensors[0]
+    X_train = stack_features(
+        train[feature_selection[dataset_name]["audio"]],
+        train[feature_selection[dataset_name]["text"]],
+        train[feature_selection[dataset_name]["visual"]])
+    y_train = train[feature_selection[dataset_name]["labels"]]
+
+    val = tensors[1]
+    X_val = stack_features(
+        val[feature_selection[dataset_name]["audio"]],
+        val[feature_selection[dataset_name]["text"]],
+        val[feature_selection[dataset_name]["visual"]])
+    y_val = val[feature_selection[dataset_name]["labels"]]
+
+    test = tensors[2]
+    X_test = stack_features(
+        test[feature_selection[dataset_name]["audio"]],
+        test[feature_selection[dataset_name]["text"]],
+        test[feature_selection[dataset_name]["visual"]])
+    y_test = test[feature_selection[dataset_name]["labels"]]
+
+    return X_train, y_train, X_val, y_val, X_test, y_test
 
 
 if __name__ == "__main__":
