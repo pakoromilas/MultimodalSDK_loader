@@ -43,3 +43,14 @@ dataset_name = your_dataset_name # eg. "cmumosi"
 seq_len = your_sequence_length # eg. 20
 tensors = get_and_process_data(dataset_name, seq_len)
 ```
+
+##### Get feature vectors
+In order to get the corresponding feature vectors in a format that is capable for training and testing, run
+
+```
+from MultimodalSDK_loader.process_dataset import get_feature_matrix
+
+dataset_name = your_dataset_name # eg. "cmumosi"
+seq_len = your_sequence_length # eg. 20
+X_train, y_train, X_val, y_val, X_test, y_test = get_feature_matrix(dataset_name, seq_len) 
+```
